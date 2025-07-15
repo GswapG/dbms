@@ -1,9 +1,9 @@
-"""
-Global pytest fixtures and configuration.
-"""
-import pytest
+"""Global pytest fixtures and configuration."""
 import os
 import tempfile
+
+import pytest
+
 
 @pytest.fixture
 def temp_db_file():
@@ -12,6 +12,7 @@ def temp_db_file():
     yield path
     os.close(fd)
     os.unlink(path)
+
 
 @pytest.fixture
 def setup_test_db():
