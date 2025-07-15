@@ -1,4 +1,5 @@
 """Global pytest fixtures and configuration."""
+
 import os
 import tempfile
 

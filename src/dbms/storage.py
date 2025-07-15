@@ -1,4 +1,5 @@
 """Storage engine implementation."""
+
 from typing import Optional, BinaryIO
 
 
@@ -7,7 +8,7 @@ class StorageEngine:
 
     def __init__(self, path: str) -> None:
         """Initialize storage engine.
-        
+
         Args:
             path: Path to the database file
         """

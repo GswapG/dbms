@@ -1,4 +1,5 @@
 """Tests for the storage engine component."""
+
 from typing import Generator
 
 import pytest
