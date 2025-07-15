@@ -1,0 +1,104 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Python Virtual Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# C++ Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# C++ Precompiled Headers
+*.gch
+*.pch
+
+# C++ Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# C++ Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# C++ Executables
+*.exe
+*.out
+*.app
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+*.db
+*.log
+logs/
+temp/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
