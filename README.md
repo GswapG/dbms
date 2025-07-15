@@ -1,6 +1,6 @@
 # dbms
 [![Tests](https://github.com/GswapG/dbms/actions/workflows/tests.yml/badge.svg)](https://github.com/GswapG/dbms/actions/workflows/tests.yml)
-[![codecov](https://codecov.io/gh/GswapG/dbms/branch/main/graph/badge.svg)](https://codecov.io/gh/GswapG/dbms)
+[[![codecov](https://codecov.io/gh/GswapG/dbms/branch/main/graph/badge.svg)](https://codecov.io/gh/GswapG/dbms)](https://codecov.io/gh/GswapG/dbms/graphs/icicle.svg?token=N0E4MJHR2M)
 
 Learning 3. To run all tests and checks:
 
