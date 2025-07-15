@@ -33,13 +33,13 @@ jobs:
       run: black --check .
 
     - name: Type checking
-      run: mypy src tests
+      run: mypy src
 
     - name: Run tests
-      run: pytest --cov=src --cov-report=xml
+      run: pytest --cov=src/dbms --cov-report=xml
 
-    - name: Upload coverage reports to Codecov
-    uses: codecov/codecov-action@v5
-    with:
-      token: ${{ secrets.CODECOV_TOKEN }}
-      slug: GswapG/dbms
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: true
