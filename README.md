@@ -59,3 +59,13 @@ When adding new features:
 2. Add test cases before implementing the feature (TDD approach)
 3. Ensure tests cover both success and error cases
 4. Add integration tests if the feature interacts with other components
+
+### Development Setup
+
+1. Install pre-commit hooks:
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+
+This will automatically format your code with Black before each commit.
