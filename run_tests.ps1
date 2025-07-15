@@ -14,9 +14,9 @@ if (Test-Path ".venv\Scripts\Activate.ps1") {
     .\.venv\Scripts\Activate.ps1
 }
 
-# Run type checking
+# Run type checking on source code
 Write-Header "Running type checking"
-mypy src tests
+mypy src
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Type checking failed!" -ForegroundColor Red

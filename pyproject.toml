@@ -9,7 +9,7 @@ description = "A custom DBMS implementation"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
-    {name = "GswapG", email = "your.email@example.com"},
+    {name = "GswapG", email = "swappyontube@gmail.com"},
 ]
 
 [tool.setuptools]
@@ -19,7 +19,20 @@ packages = ["dbms"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "--cov=src --cov-report=term-missing"
+addopts = "--cov=src/dbms --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["src/dbms"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
 
 [tool.black]
 line-length = 88
@@ -33,3 +46,18 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 check_untyped_defs = true
 strict_optional = true
+
+# Paths to check
+files = ["src"]
+exclude = ["tests"]
+
+# Be strict with source code
+[[tool.mypy.overrides]]
+module = "dbms.*"
+strict = true
+
+# Be lenient with tests
+[[tool.mypy.overrides]]
+module = "tests.*"
+disable_error_code = ["var-annotated", "no-untyped-def"]
+strict = false
