@@ -1,3 +1,21 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dbms"
+version = "0.1.0"
+description = "A custom DBMS implementation"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "GswapG", email = "your.email@example.com"},
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["dbms"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -5,11 +23,13 @@ addopts = "--cov=src --cov-report=term-missing"
 
 [tool.black]
 line-length = 88
-target-version = ['py37']
+target-version = ['py39']
 include = '\.pyi?$'
 
 [tool.mypy]
-python_version = "3.7"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+check_untyped_defs = true
+strict_optional = true
