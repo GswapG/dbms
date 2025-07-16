@@ -13,8 +13,8 @@ authors = [
 ]
 
 [tool.setuptools]
-package-dir = {"" = "src"}
 packages = ["dbms"]
+package-dir = {"dbms" = "src"}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
