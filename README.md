@@ -33,7 +33,7 @@ This project implements a SQL database that follows ANSI SQL syntax and provides
   - Query parsing
   - Planning
   - Client connection management
-  
+
 - Backend (C++)
   - Query execution
   - Storage management

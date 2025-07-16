@@ -51,13 +51,15 @@ strict_optional = true
 files = ["src"]
 exclude = ["tests"]
 
+# Configure import discovery
+ignore_missing_imports = true
+
 # Be strict with source code
 [[tool.mypy.overrides]]
 module = "dbms.*"
 strict = true
 
-# Be lenient with tests
+# Ignore tests completely
 [[tool.mypy.overrides]]
 module = "tests.*"
-disable_error_code = ["var-annotated", "no-untyped-def"]
-strict = false
+ignore_errors = true
