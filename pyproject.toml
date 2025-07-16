@@ -19,10 +19,10 @@ package-dir = {"dbms" = "src"}
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "--cov=src/dbms --cov-report=term-missing"
+addopts = "--cov=dbms --cov-report=term-missing"
 
 [tool.coverage.run]
-source = ["src/dbms"]
+source = ["dbms"]
 omit = ["tests/*"]
 
 [tool.coverage.report]
