@@ -146,3 +146,21 @@ Individual components can be tested:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Logging
+
+A global logging system is used for all backend components:
+
+- All backend logs are written to a single file: `dbms_backend.log` (created in the project root).
+- Logging is configured at the DEBUG level by default.
+- Log messages include timestamps, log level, logger name, and the function where the log was created.
+- Logs are emitted at different levels (INFO, WARNING, ERROR, DEBUG) depending on the event.
+- Each log message indicates which object or class is generating the log (e.g., `[StorageEngine]`).
+- All backend modules should use the same logger to ensure unified logging.
+
+Example log entry:
+```
+[2024-06-01 12:34:56,789] INFO [dbms.create_database] [StorageEngine] Database 'test_db' created with UID 1234abcd-...
+```
+
+This helps with debugging, monitoring, and auditing backend operations.

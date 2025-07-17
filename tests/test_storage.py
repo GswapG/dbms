@@ -8,7 +8,7 @@ import pytest
 from typing import Generator
 
 from dbms.storage import StorageEngine
-from dbms.common.errors import DatabaseExistsError, StorageError
+from dbms.common.errors import DatabaseExistsError, StorageError, TableError
 
 
 @pytest.fixture
@@ -89,3 +89,56 @@ def test_invalid_metadata(temp_db_dir: str) -> None:
     with pytest.raises(StorageError) as exc_info:
         StorageEngine(temp_db_dir)
     assert str(exc_info.value) == "Invalid global metadata format"
+
+
+def test_create_table_with_columns_and_limits(
+    storage_engine: StorageEngine, temp_db_dir: str
+) -> None:
+    """Test table creation with columns, max file size, and max rows per file."""
+    db_name = "test_db"
+    storage_engine.create_database(db_name)
+    columns = [
+        {"name": "id", "type": "INTEGER", "nullable": False, "primary_key": True},
+        {"name": "username", "type": "VARCHAR(50)", "nullable": False},
+        {"name": "email", "type": "VARCHAR(100)", "nullable": True},
+        {"name": "created_at", "type": "TIMESTAMP", "nullable": False},
+    ]
+    table_name = "users"
+    uid = storage_engine.create_table(db_name, table_name, columns)
+
+    # Check that table directory and metadata exist
+    db_uid = storage_engine.metadata["databases"][db_name]["uid"]
+    table_dir = Path(temp_db_dir) / f"db_{db_uid}" / f"table_{uid}"
+    assert table_dir.exists()
+    assert table_dir.is_dir()
+    table_metadata_file = table_dir / "table_metadata.json"
+    assert table_metadata_file.exists()
+    with open(table_metadata_file) as f:
+        table_metadata = json.load(f)
+    assert table_metadata["columns"] == columns
+    assert table_metadata["max_file_size_bytes"] == storage_engine.max_file_size_bytes
+    # Calculate expected max row size
+    expected_row_size = (
+        4 + 50 + 100 + 8
+    )  # INTEGER + VARCHAR(50) + VARCHAR(100) + TIMESTAMP
+    expected_max_rows = storage_engine.max_file_size_bytes // expected_row_size
+    assert table_metadata["max_rows_per_file"] == expected_max_rows
+    # Check that data folder and first data file exist
+    data_folder = table_dir / "data"
+    assert data_folder.exists() and data_folder.is_dir()
+    first_data_file = data_folder / "data_0.jsonl"
+    assert first_data_file.exists()
+
+
+def test_create_duplicate_table_raises(storage_engine: StorageEngine) -> None:
+    """Test that creating a duplicate table raises an error."""
+    db_name = "test_db"
+    storage_engine.create_database(db_name)
+    columns = [
+        {"name": "id", "type": "INTEGER", "nullable": False, "primary_key": True}
+    ]
+    table_name = "users"
+    storage_engine.create_table(db_name, table_name, columns)
+    with pytest.raises(TableError) as exc_info:
+        storage_engine.create_table(db_name, table_name, columns)
+    assert f"Table '{table_name}' already exists" in str(exc_info.value)
