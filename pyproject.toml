@@ -11,6 +11,9 @@ requires-python = ">=3.9"
 authors = [
     {name = "GswapG", email = "swappyontube@gmail.com"},
 ]
+dependencies = [
+    "PyYAML"
+]
 
 [project.optional-dependencies]
 dev = [
