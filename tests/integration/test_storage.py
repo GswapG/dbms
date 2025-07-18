@@ -250,3 +250,64 @@ def test_integration_db_structure(sample_users_table, storage_engine, temp_db_di
         reader = csv.reader(f)
         header = next(reader)
         assert header == [col["name"] for col in columns]
+
+
+def test_delete_table_and_database(temp_db_dir):
+    engine = StorageEngine(temp_db_dir)
+    # Create two databases, each with two tables
+    dbs = ["db1", "db2"]
+    tables = [
+        (
+            "users",
+            [
+                {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "nullable": False,
+                    "primary_key": True,
+                },
+                {"name": "name", "type": "VARCHAR(20)", "nullable": False},
+            ],
+        ),
+        (
+            "orders",
+            [
+                {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "nullable": False,
+                    "primary_key": True,
+                },
+                {"name": "user_id", "type": "INTEGER", "nullable": False},
+            ],
+        ),
+    ]
+    for db_name in dbs:
+        engine.create_database(db_name)
+        for table_name, columns in tables:
+            engine.create_table(db_name, table_name, columns)
+    # Delete one table from db1
+    engine.delete_table("db1", "users")
+    db1_uid = engine.metadata["databases"]["db1"]["uid"]
+    db1_path = Path(temp_db_dir) / f"db_{db1_uid}"
+    # Check that users table dir is gone
+    db1_metadata_file = db1_path / "db_metadata.json"
+    with open(db1_metadata_file) as f:
+        db1_metadata = json.load(f)
+    assert "users" not in db1_metadata["tables"]
+    # Delete db2 entirely
+    engine.delete_database("db2")
+    # Check that db2 dir is gone
+    db2_uid = None
+    for db_name, db_meta in engine.metadata["databases"].items():
+        if db_name == "db2":
+            db2_uid = db_meta["uid"]
+    if db2_uid:
+        db2_path = Path(temp_db_dir) / f"db_{db2_uid}"
+        assert not db2_path.exists()
+    # Check that db2 is gone from global metadata
+    assert "db2" not in engine.metadata["databases"]
+    # Check that db1/orders still exists
+    orders_uid = engine.metadata["databases"]["db1"]["tables"]["orders"]["uid"]
+    orders_path = db1_path / f"table_{orders_uid}"
+    assert orders_path.exists()

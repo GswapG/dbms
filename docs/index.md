@@ -1,11 +1,10 @@
 # DBMS Documentation Index
 
-Welcome to the DBMS project documentation. Use the links below to navigate:
+Welcome! Use the links below to navigate the documentation:
 
-- [Architecture Overview](./architecture.md): High-level system design and data flow.
-- [Storage Backend](./storage.md): How data and metadata are stored, file formats, and directory structure.
-- [Logging](./logging.md): Logging strategy, log file locations, and log levels.
-- [SQL Parser](./parser.md): SQL grammar, supported syntax, and parsing strategy.
-- [Query Executor](./executor.md): Query execution flow and planned features.
-- [API Reference](./api.md): Public API, method signatures, and usage examples.
-- [Contributing](./contributing.md): How to contribute, code style, testing, and documentation guidelines.
+- [Configuration](configuration.md): Global settings for all major components.
+- [Architecture Overview](architecture.md): High-level system design and data flow.
+- [Storage Backend](storage.md): Data and metadata storage, file formats, CRUD operations.
+- [Logging](logging.md): Logging strategy, log file locations, and log levels.
+- [Contributing](contributing.md): How to contribute, code style, testing, and documentation guidelines.
+- [API Reference](api/index.md): Central reference for all major modules and classes.

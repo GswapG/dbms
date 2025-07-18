@@ -12,6 +12,11 @@ authors = [
     {name = "GswapG", email = "swappyontube@gmail.com"},
 ]
 
+[project.optional-dependencies]
+dev = [
+    "types-PyYAML"
+]
+
 [tool.setuptools]
 packages = ["dbms"]
 package-dir = {"dbms" = "src"}

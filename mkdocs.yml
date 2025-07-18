@@ -1,10 +1,18 @@
 site_name: DBMS Documentation
 nav:
   - Home: index.md
+  - Configuration: configuration.md
   - Architecture: architecture.md
   - Storage Backend: storage.md
   - Logging: logging.md
   - Contributing: contributing.md
+  - API Reference:
+      - Overview: api/index.md
+      - Storage: api/storage.md
+      - Executor: api/executor.md
+      - Logging: api/logging.md
+      - Client: api/client.md
+      - Parser: api/parser.md
 theme:
   name: material
   palette:
@@ -31,7 +39,11 @@ markdown_extensions:
   - codehilite
   - toc:
       permalink: true
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.details
   - pymdownx.tabbed
   - pymdownx.emoji

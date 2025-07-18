@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, Optional, Any, List, Iterator
 import logging
 import csv
+import shutil
 
 from ..common.errors import (
     StorageError,
@@ -15,6 +16,7 @@ from ..common.errors import (
     DatabaseExistsError,
     TableError,
 )
+from ..common.config import MAX_FILE_SIZE_BYTES, BATCH_SIZE, LOG_FILE, TYPE_SIZES
 
 
 def generate_uid() -> str:
@@ -25,7 +27,7 @@ def generate_uid() -> str:
 # Configure global logger
 logger = logging.getLogger("dbms")
 logger.setLevel(logging.DEBUG)
-file_handler = logging.FileHandler("dbms_backend.log")
+file_handler = logging.FileHandler(LOG_FILE)
 formatter = logging.Formatter(
     "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s] %(message)s"
 )
@@ -36,8 +38,6 @@ if not logger.hasHandlers():
 
 class StorageEngine:
     """Storage engine implementation."""
-
-    DEFAULT_MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024  # 100MB
 
     def __init__(
         self, base_path: str, max_file_size_bytes: Optional[int] = None
@@ -51,9 +51,7 @@ class StorageEngine:
         logger.info(f"[StorageEngine] Initializing with base_path: {base_path}")
         self.base_path = Path(base_path)
         self.metadata: Dict[str, Any] = {}
-        self.max_file_size_bytes = (
-            max_file_size_bytes or self.DEFAULT_MAX_FILE_SIZE_BYTES
-        )
+        self.max_file_size_bytes = max_file_size_bytes or MAX_FILE_SIZE_BYTES
         self._ensure_base_structure()
         self._load_global_metadata()
         logger.info(f"[StorageEngine] Initialization complete.")
@@ -200,23 +198,15 @@ class StorageEngine:
                 import re
 
                 m = re.match(r"VARCHAR\((\d+)\)", t)
-                return int(m.group(1)) if m else 255
+                return int(m.group(1)) if m else TYPE_SIZES["VARCHAR"]
             if t.startswith("CHAR"):
                 import re
 
                 m = re.match(r"CHAR\((\d+)\)", t)
-                return int(m.group(1)) if m else 1
-            if t == "INTEGER":
-                return 4
-            if t == "BIGINT":
-                return 8
-            if t in ("FLOAT", "DOUBLE"):
-                return 8
-            if t == "BOOLEAN":
-                return 1
-            if t in ("DATE", "TIMESTAMP"):
-                return 8
-            return 16  # fallback for unknown types
+                return int(m.group(1)) if m else TYPE_SIZES["CHAR"]
+            if t in TYPE_SIZES:
+                return TYPE_SIZES[t]
+            return TYPE_SIZES["FALLBACK"]  # fallback for unknown types
 
         max_row_size = sum(get_col_size(col) for col in columns)
         max_file_size_bytes = self.max_file_size_bytes
@@ -278,7 +268,7 @@ class StorageEngine:
         return uid
 
     def scan_table(
-        self, db_name: str, table_name: str, batch_size: int = 1000
+        self, db_name: str, table_name: str, batch_size: int = BATCH_SIZE
     ) -> Iterator[List[Dict[str, Any]]]:
         """
         Yield batches of rows from the specified table as lists of dictionaries.
@@ -384,3 +374,58 @@ class StorageEngine:
         table_metadata["latest_data_file"] = f"data_{file_idx}.csv"
         with open(table_metadata_file, "w") as f:
             json.dump(table_metadata, f, indent=2)
+
+    def delete_table(self, db_name: str, table_name: str) -> None:
+        """Delete a table from the database, remove its files, and update metadata."""
+        logger.info(
+            f"[StorageEngine] Deleting table: {table_name} from database: {db_name}"
+        )
+        if db_name not in self.metadata["databases"]:
+            logger.error(f"[StorageEngine] Database '{db_name}' not found.")
+            raise DatabaseError(f"Database '{db_name}' not found")
+        if table_name not in self.metadata["databases"][db_name]["tables"]:
+            logger.error(
+                f"[StorageEngine] Table '{table_name}' not found in database '{db_name}'."
+            )
+            raise TableError(f"Table '{table_name}' not found in database '{db_name}'")
+        db_uid = self.metadata["databases"][db_name]["uid"]
+        table_uid = self.metadata["databases"][db_name]["tables"][table_name]["uid"]
+        table_path = self.base_path / f"db_{db_uid}" / f"table_{table_uid}"
+        # Remove table directory
+        if table_path.exists():
+            shutil.rmtree(table_path)
+            logger.info(f"[StorageEngine] Removed table directory: {table_path}")
+        # Update db_metadata.json
+        db_metadata_file = self.base_path / f"db_{db_uid}" / "db_metadata.json"
+        with open(db_metadata_file, "r") as f:
+            db_metadata = json.load(f)
+        if table_name in db_metadata["tables"]:
+            del db_metadata["tables"][table_name]
+            with open(db_metadata_file, "w") as f:
+                json.dump(db_metadata, f, indent=2)
+            logger.info(
+                f"[StorageEngine] Updated db_metadata.json after table deletion."
+            )
+        # Update in-memory and global metadata
+        del self.metadata["databases"][db_name]["tables"][table_name]
+        self._save_global_metadata()
+        logger.info(
+            f"[StorageEngine] Table '{table_name}' deleted from database '{db_name}'"
+        )
+
+    def delete_database(self, db_name: str) -> None:
+        """Delete a database, remove its files, and update global metadata."""
+        logger.info(f"[StorageEngine] Deleting database: {db_name}")
+        if db_name not in self.metadata["databases"]:
+            logger.error(f"[StorageEngine] Database '{db_name}' not found.")
+            raise DatabaseError(f"Database '{db_name}' not found")
+        db_uid = self.metadata["databases"][db_name]["uid"]
+        db_path = self.base_path / f"db_{db_uid}"
+        # Remove database directory
+        if db_path.exists():
+            shutil.rmtree(db_path)
+            logger.info(f"[StorageEngine] Removed database directory: {db_path}")
+        # Update global metadata
+        del self.metadata["databases"][db_name]
+        self._save_global_metadata()
+        logger.info(f"[StorageEngine] Database '{db_name}' deleted.")

@@ -1,5 +1,7 @@
 # Logging
 
+See [Configuration](configuration.md) for details on global settings (log file, etc.).
+
 This document describes the logging strategy for the DBMS backend.
 
 ## Log File

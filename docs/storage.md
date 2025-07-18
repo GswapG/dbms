@@ -85,3 +85,25 @@ id,name,age,email
 ## Related Docs
 - [Architecture Overview](./architecture.md)
 - [Logging](./logging.md)
+
+## Configuration
+
+See [Configuration](configuration.md) for details on global settings (max file size, batch size, log file, type sizes, etc.).
+
+## Deleting Tables and Databases (DROP)
+
+- **DROP TABLE:**
+  - Use the `delete_table` method to remove a table from a database.
+  - This operation deletes the table's directory and all its data files.
+  - The table entry is removed from both the database metadata (`db_metadata.json`) and the global metadata (`global_metadata.json`).
+  - All actions are logged for auditability.
+
+- **DROP DATABASE:**
+  - Use the `delete_database` method to remove an entire database.
+  - This operation deletes the database directory and all its tables and data files.
+  - The database entry is removed from the global metadata (`global_metadata.json`).
+  - All actions are logged for auditability.
+
+**Note:**
+- These operations are thorough: all on-disk files and directories are removed, and all metadata is kept in sync.
+- Attempting to delete a non-existent table or database will raise an error and log the failure.
