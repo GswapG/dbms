@@ -164,3 +164,7 @@ Example log entry:
 ```
 
 This helps with debugging, monitoring, and auditing backend operations.
+
+## Documentation
+
+See the full project documentation in [docs/index.md](./docs/index.md)

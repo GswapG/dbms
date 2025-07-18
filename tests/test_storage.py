@@ -5,22 +5,10 @@ import os
 from datetime import datetime
 from pathlib import Path
 import pytest
-from typing import Generator
+from typing import Generator, List, Dict, Any
 
 from dbms.storage import StorageEngine
 from dbms.common.errors import DatabaseExistsError, StorageError, TableError
-
-
-@pytest.fixture
-def temp_db_dir(tmp_path) -> str:
-    """Create a temporary database directory."""
-    return str(tmp_path / "test_db")
-
-
-@pytest.fixture
-def storage_engine(temp_db_dir) -> StorageEngine:
-    """Create a storage engine instance."""
-    return StorageEngine(temp_db_dir)
 
 
 def test_storage_engine_initialization(temp_db_dir: str) -> None:
@@ -142,3 +130,74 @@ def test_create_duplicate_table_raises(storage_engine: StorageEngine) -> None:
     with pytest.raises(TableError) as exc_info:
         storage_engine.create_table(db_name, table_name, columns)
     assert f"Table '{table_name}' already exists" in str(exc_info.value)
+
+
+def test_scan_table_and_append_rows(storage_engine: StorageEngine, temp_db_dir: str):
+    db_name = "test_db"
+    table_name = "users"
+    columns = [
+        {"name": "id", "type": "INTEGER", "nullable": False, "primary_key": True},
+        {"name": "name", "type": "VARCHAR(20)", "nullable": False},
+        {"name": "age", "type": "INTEGER", "nullable": False},
+    ]
+    storage_engine.create_database(db_name)
+    storage_engine.create_table(db_name, table_name, columns)
+
+    # Insert some rows
+    rows = [
+        {"id": 1, "name": "Alice", "age": 30},
+        {"id": 2, "name": "Bob", "age": 25},
+        {"id": 3, "name": "Charlie", "age": 35},
+        {"id": 4, "name": "Diana", "age": 40},
+        {"id": 5, "name": "Eve", "age": 22},
+    ]
+    storage_engine.append_rows(db_name, table_name, rows)
+
+    # Scan in batches of 2
+    batches = list(storage_engine.scan_table(db_name, table_name, batch_size=2))
+    # Should yield 3 batches: [row1, row2], [row3, row4], [row5]
+    assert len(batches) == 3
+    flat = [row for batch in batches for row in batch]
+    assert flat == rows
+
+    # Append more rows and scan again
+    more_rows = [
+        {"id": 6, "name": "Frank", "age": 28},
+        {"id": 7, "name": "Grace", "age": 31},
+    ]
+    storage_engine.append_rows(db_name, table_name, more_rows)
+    all_rows = rows + more_rows
+    batches = list(storage_engine.scan_table(db_name, table_name, batch_size=3))
+    # Should yield 3 batches: [1,2,3], [4,5,6], [7]
+    assert len(batches) == 3
+    flat = [row for batch in batches for row in batch]
+    assert flat == all_rows
+
+    # Check that the latest_data_file in metadata is updated
+    db_uid = storage_engine.metadata["databases"][db_name]["uid"]
+    table_uid = storage_engine.metadata["databases"][db_name]["tables"][table_name][
+        "uid"
+    ]
+    table_metadata_file = (
+        Path(temp_db_dir)
+        / f"db_{db_uid}"
+        / f"table_{table_uid}"
+        / "table_metadata.json"
+    )
+    with open(table_metadata_file) as f:
+        table_metadata = json.load(f)
+    assert table_metadata["latest_data_file"].startswith("data_")
+
+
+def test_scan_sample_users_table(sample_users_table, storage_engine):
+    db_name, table_name, columns, expected_rows = sample_users_table
+    # Scan in batches of 20
+    batches = list(storage_engine.scan_table(db_name, table_name, batch_size=20))
+    # Should yield 5 batches of 20 rows each
+    assert len(batches) == 5
+    flat = [row for batch in batches for row in batch]
+    # All ids should be unique and match expected
+    assert sorted(row["id"] for row in flat) == sorted(
+        row["id"] for row in expected_rows
+    )
+    assert len(flat) == 100

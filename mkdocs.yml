@@ -1,0 +1,37 @@
+site_name: DBMS Documentation
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Storage Backend: storage.md
+  - Logging: logging.md
+  - Contributing: contributing.md
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.annotate
+    - content.code.copy
+    - navigation.instant
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed
+  - pymdownx.emoji
+  - pymdownx.tasklist
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.tilde
+  - pymdownx.smartsymbols
+  - pymdownx.magiclink
+  - pymdownx.progressbar
+  - pymdownx.arithmatex

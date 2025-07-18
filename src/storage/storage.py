@@ -5,8 +5,9 @@ import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional, Any, List, Iterator
 import logging
+import csv
 
 from ..common.errors import (
     StorageError,
@@ -257,3 +258,107 @@ class StorageEngine:
         self._save_global_metadata()
         logger.info(f"[StorageEngine] Table '{table_name}' created with UID {uid}")
         return uid
+
+    def scan_table(
+        self, db_name: str, table_name: str, batch_size: int = 1000
+    ) -> Iterator[List[Dict[str, Any]]]:
+        """
+        Yield batches of rows from the specified table as lists of dictionaries.
+        Converts values to correct types based on table metadata.
+        """
+        db_uid = self.metadata["databases"][db_name]["uid"]
+        table_uid = self.metadata["databases"][db_name]["tables"][table_name]["uid"]
+        table_dir = self.base_path / f"db_{db_uid}" / f"table_{table_uid}"
+        data_dir = table_dir / "data"
+        table_metadata_file = table_dir / "table_metadata.json"
+        import json
+
+        with open(table_metadata_file) as f:
+            table_metadata = json.load(f)
+        col_types = {
+            col["name"]: col["type"].upper() for col in table_metadata["columns"]
+        }
+
+        def convert_value(val: Any, typ: str) -> Any:
+            if val == "" or val is None:
+                return None
+            if typ.startswith("VARCHAR") or typ.startswith("CHAR"):
+                return str(val)
+            if typ == "INTEGER":
+                return int(val)
+            if typ == "BIGINT":
+                return int(val)
+            if typ in ("FLOAT", "DOUBLE"):
+                return float(val)
+            if typ == "BOOLEAN":
+                return val.lower() in ("1", "true", "yes")
+            if typ in ("DATE", "TIMESTAMP"):
+                return str(val)  # Could parse to datetime if needed
+            return val
+
+        batch = []
+        for data_file in sorted(os.listdir(data_dir)):
+            if not data_file.endswith(".csv"):
+                continue
+            with open(data_dir / data_file, newline="") as f:
+                import csv
+
+                reader = csv.DictReader(f)
+                for row in reader:
+                    typed_row = {
+                        col: convert_value(row[col], col_types[col]) for col in row
+                    }
+                    batch.append(typed_row)
+                    if len(batch) == batch_size:
+                        yield batch
+                        batch = []
+        if batch:
+            yield batch
+
+    def append_rows(
+        self, db_name: str, table_name: str, rows: List[Dict[str, Any]]
+    ) -> None:
+        """
+        Append rows to the table's latest CSV file, or create a new file if needed. Updates table metadata to track the latest data file.
+        """
+        import csv, json
+
+        db_uid = self.metadata["databases"][db_name]["uid"]
+        table_uid = self.metadata["databases"][db_name]["tables"][table_name]["uid"]
+        table_dir = self.base_path / f"db_{db_uid}" / f"table_{table_uid}"
+        data_dir = table_dir / "data"
+        table_metadata_file = table_dir / "table_metadata.json"
+        with open(table_metadata_file) as f:
+            table_metadata = json.load(f)
+        max_rows = table_metadata["max_rows_per_file"]
+        columns = [col["name"] for col in table_metadata["columns"]]
+        # Optimization: track latest data file in metadata
+        latest_file = table_metadata.get("latest_data_file", "data_0.csv")
+        file_path = data_dir / latest_file
+        # Count current rows in latest file
+        current_rows = 0
+        if file_path.exists():
+            with open(file_path, newline="") as f:
+                current_rows = sum(1 for _ in f) - 1  # minus header
+        to_write = rows[:]
+        file_idx = int(latest_file.split("_")[1].split(".")[0])
+        while to_write:
+            space_left = max_rows - current_rows
+            batch = to_write[:space_left]
+            to_write = to_write[space_left:]
+            write_header = not file_path.exists() or current_rows == 0
+            with open(file_path, "a", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=columns)
+                if write_header:
+                    writer.writeheader()
+                writer.writerows(batch)
+            if to_write:
+                file_idx += 1
+                file_path = data_dir / f"data_{file_idx}.csv"
+                current_rows = 0
+            else:
+                current_rows += len(batch)
+        # Update latest_data_file in table metadata
+        table_metadata["latest_data_file"] = f"data_{file_idx}.csv"
+        with open(table_metadata_file, "w") as f:
+            json.dump(table_metadata, f, indent=2)
