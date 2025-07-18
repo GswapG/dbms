@@ -17,7 +17,7 @@ packages = ["dbms"]
 package-dir = {"dbms" = "src"}
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests/unit", "tests/integration"]
 python_files = ["test_*.py"]
 addopts = "--cov=dbms --cov-report=term-missing"
 

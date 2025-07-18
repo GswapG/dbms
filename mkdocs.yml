@@ -7,6 +7,19 @@ nav:
   - Contributing: contributing.md
 theme:
   name: material
+  palette:
+    - scheme: slate  # dark mode by default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
   features:
     - navigation.tabs
     - navigation.top

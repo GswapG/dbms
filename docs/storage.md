@@ -61,6 +61,27 @@ Each database is stored in its own directory, with the following structure:
 - Each CSV file contains a subset of the table's rows, up to the configured size or row limit.
 - New files are created as needed (e.g., `data_0.csv`, `data_1.csv`, ...).
 
+## CSV File Structure
+
+- **Every table's data is stored in one or more CSV files (e.g., `data_0.csv`, `data_1.csv`, ...).**
+- **Each CSV file always starts with a header row** listing the column names, in the order defined by the table schema.
+- **All subsequent rows are data rows** matching the schema.
+- **When reading data, the system expects the header to be present and to match the schema.**
+- **If the header is missing or malformed, reading will fail or produce incorrect results.**
+
+**Example:**
+```csv
+id,name,age,email
+1,Alice,30,alice@example.com
+2,Bob,25,bob@example.com
+... (more rows) ...
+```
+
+**Why is this important?**
+- The header ensures that the mapping between column names and values is always correct.
+- The storage engine uses the header to convert values to the correct types based on the schema.
+- Appending and reading are robust and consistent as long as the header is always present.
+
 ## Related Docs
 - [Architecture Overview](./architecture.md)
 - [Logging](./logging.md)

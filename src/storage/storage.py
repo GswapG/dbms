@@ -136,6 +136,7 @@ class StorageEngine:
         timestamp = datetime.now(timezone.utc).isoformat()
         db_metadata = {
             "version": "1.0",
+            "name": name,
             "created_at": timestamp,
             "last_modified": timestamp,
             "tables": {},  # name -> {uid, created_at, last_modified}
@@ -227,11 +228,13 @@ class StorageEngine:
         timestamp = datetime.now(timezone.utc).isoformat()
         table_metadata = {
             "version": "1.0",
+            "name": table_name,
             "created_at": timestamp,
             "last_modified": timestamp,
             "columns": columns,
             "max_file_size_bytes": max_file_size_bytes,
             "max_rows_per_file": max_rows_per_file,
+            "latest_data_file": "data_0.csv",
         }
         with open(table_path / "table_metadata.json", "w") as f:
             json.dump(table_metadata, f, indent=2)
@@ -242,8 +245,9 @@ class StorageEngine:
         # Create folder for data files and the first data file
         data_folder = table_path / "data"
         data_folder.mkdir()
-        first_data_file = data_folder / "data_0.jsonl"
-        with open(first_data_file, "w") as f:
+        first_data_file = data_folder / "data_0.csv"
+
+        with open(first_data_file, "w", newline="") as f:
             pass  # create empty file
         logger.info(
             f"[StorageEngine] Created first data file for '{table_name}' at {first_data_file}"
@@ -256,6 +260,20 @@ class StorageEngine:
             "last_modified": timestamp,
         }
         self._save_global_metadata()
+
+        # Update db_metadata.json to include the new table
+        db_metadata_file = self.base_path / f"db_{db_uid}" / "db_metadata.json"
+        with open(db_metadata_file, "r") as f:
+            db_metadata = json.load(f)
+        db_metadata["tables"][table_name] = {
+            "uid": uid,
+            "name": table_name,
+            "created_at": timestamp,
+            "last_modified": timestamp,
+        }
+        with open(db_metadata_file, "w") as f:
+            json.dump(db_metadata, f, indent=2)
+
         logger.info(f"[StorageEngine] Table '{table_name}' created with UID {uid}")
         return uid
 
@@ -305,6 +323,8 @@ class StorageEngine:
 
                 reader = csv.DictReader(f)
                 for row in reader:
+                    print("row type: ", type(row))
+                    print("row: ", row)
                     typed_row = {
                         col: convert_value(row[col], col_types[col]) for col in row
                     }
@@ -346,7 +366,9 @@ class StorageEngine:
             space_left = max_rows - current_rows
             batch = to_write[:space_left]
             to_write = to_write[space_left:]
-            write_header = not file_path.exists() or current_rows == 0
+            write_header = (
+                not file_path.exists() or current_rows <= 0
+            )  # might be -1 if no header (first inser  t)
             with open(file_path, "a", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=columns)
                 if write_header:

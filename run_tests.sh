@@ -27,6 +27,6 @@ fi
 
 # Run tests with coverage
 print_header "Running tests with coverage"
-pytest --cov=src --cov-report=term-missing
+pytest tests/unit tests/integration --cov=src --cov-report=term-missing
 
 echo -e "\nAll checks passed successfully!"

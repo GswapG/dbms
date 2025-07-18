@@ -34,7 +34,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Run tests with coverage
 Write-Header "Running tests with coverage"
-pytest --cov=src --cov-report=term-missing
+pytest tests/unit tests/integration --cov=src --cov-report=term-missing
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Tests failed!" -ForegroundColor Red
