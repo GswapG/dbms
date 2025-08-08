@@ -2,7 +2,7 @@
 
 ## Configuration
 
-See [Configuration](../configuration.md) for details on global settings (max file size, batch size, log file, type sizes, etc.).
+See [Configuration](../explanation/configuration.md) for details on global settings (max file size, batch size, log file, type sizes, etc.).
 
 ---
 
@@ -66,7 +66,15 @@ Yield batches of rows from a table, converting types based on schema.
 - **table_metadata.json**: Tracks schema and settings for a table (now includes table name).
 
 ## Logging
-All operations are logged to `dbms_backend.log`.
+All operations are logged using the module-specific logger (`dbms.storage`) with automatic class name detection. Logs are written to `dbms_backend.log` by default.
+
+```python
+from dbms.common.logging_config import get_logger
+logger = get_logger("storage")
+
+# Class name "StorageEngine" is automatically detected in log messages
+logger.info("Creating database: mydb")
+```
 
 ## Example Usage
 ```python

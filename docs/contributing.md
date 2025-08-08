@@ -17,10 +17,12 @@ Thank you for your interest in contributing to the DBMS project!
 - Keep documentation up to date with code changes.
 
 ## Logging
-- Use the global logger (`dbms`) for all backend logs.
+- Use module-specific loggers from `dbms.common.logging_config` for all backend logs.
+- Get loggers using `get_logger("module_name")` (e.g., `get_logger("storage")`).
 - Log at appropriate levels (DEBUG, INFO, WARNING, ERROR).
-- Include context (e.g., class or function name) in log messages.
+- Class names are automatically detected - no need to include them manually in messages.
+- Follow the pattern: `logger.info("Clean message without hardcoded class names")`
 
 ## Related Docs
-- [Logging](./logging.md)
-- [Storage Backend](./storage.md)
+- [Logging](explanation/logging.md)
+- [Storage Backend](explanation/storage.md)

@@ -104,3 +104,7 @@ dmypy.json
 .env.*.local
 
 manual_db/
+
+parsetab.py
+src/parser/parsetab.py
+parse_trees

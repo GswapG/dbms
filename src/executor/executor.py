@@ -2,6 +2,10 @@ from typing import Iterator, List, Dict, Any, Callable, Optional
 from ..storage.storage import StorageEngine
 from .batch_ops import filter_batches, project_batches
 from .sinks import BaseSink, OutputSink, InsertSink
+from ..common.logging_config import get_logger
+
+# Get module-specific logger
+logger = get_logger("executor")
 
 
 class Executor:

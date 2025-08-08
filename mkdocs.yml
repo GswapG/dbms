@@ -1,18 +1,34 @@
 site_name: DBMS Documentation
 nav:
   - Home: index.md
-  - Configuration: configuration.md
-  - Architecture: architecture.md
-  - Storage Backend: storage.md
-  - Logging: logging.md
-  - Contributing: contributing.md
+  - Introduction: introduction.md
+  - Tutorials:
+      - Quick Start: tutorials/quickstart.md
+      - First SQL Query: tutorials/first-query.md
+      - Building Complex Queries: tutorials/complex-queries.md
+  - How-to Guides:
+      - Installation: how-to/installation.md
+      - Running Tests: how-to/testing.md
+      - Debugging Queries: how-to/debugging.md
+      - Extending the Parser: how-to/extending-parser.md
+      - Parse Tree Visualization: how-to/parse-trees.md
   - API Reference:
       - Overview: api/index.md
+      - Parser: api/parser.md
       - Storage: api/storage.md
       - Executor: api/executor.md
       - Logging: api/logging.md
       - Client: api/client.md
-      - Parser: api/parser.md
+  - Explanation:
+      - Architecture Overview: explanation/architecture.md
+      - SQL Parser Deep Dive: explanation/parser.md
+      - Grammar Reference: explanation/grammar.md
+      - Storage System: explanation/storage.md
+      - Query Execution: explanation/execution.md
+      - Configuration: explanation/configuration.md
+      - Logging Strategy: explanation/logging.md
+      - SQL Features: sql_features.md
+  - Contributing: contributing.md
 theme:
   name: material
   palette:
@@ -31,9 +47,20 @@ theme:
   features:
     - navigation.tabs
     - navigation.top
+    - navigation.expand
+    - navigation.sections
+    - navigation.prune
     - content.code.annotate
     - content.code.copy
     - navigation.instant
+    - navigation.tracking
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  font:
+    text: Roboto
+    code: Roboto Mono
 markdown_extensions:
   - admonition
   - codehilite

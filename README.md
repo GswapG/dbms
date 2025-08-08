@@ -149,22 +149,33 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Logging
 
-A global logging system is used for all backend components:
+A centralized logging system is used for all backend components with automatic class name detection:
 
-- All backend logs are written to a single file: `dbms_backend.log` (created in the project root).
-- Logging is configured at the DEBUG level by default.
-- Log messages include timestamps, log level, logger name, and the function where the log was created.
-- Logs are emitted at different levels (INFO, WARNING, ERROR, DEBUG) depending on the event.
-- Each log message indicates which object or class is generating the log (e.g., `[StorageEngine]`).
-- All backend modules should use the same logger to ensure unified logging.
+- **Module-specific loggers**: Each component (storage, parser, executor, client) has its own logger
+- **Automatic class detection**: Class names are automatically detected from the calling context
+- **Centralized configuration**: All logging setup is in `src/common/logging_config.py`
+- **Log file**: All backend logs are written to `dbms_backend.log` (created in the project root)
+- **Log levels**: DEBUG, INFO, WARNING, ERROR with appropriate context
+- **Clean format**: No hardcoded class names in log messages
 
 Example log entry:
 ```
-[2024-06-01 12:34:56,789] INFO [dbms.create_database] [StorageEngine] Database 'test_db' created with UID 1234abcd-...
+[2025-07-26 06:08:07,307] INFO [dbms.storage.StorageEngine.create_database] Creating database: test_db
 ```
 
-This helps with debugging, monitoring, and auditing backend operations.
+This provides better debugging, monitoring, and auditing with clear module separation and automatic context detection.
 
 ## Documentation
 
 See the full project documentation in [docs/index.md](./docs/index.md)
+
+> [!NOTE]
+> You can use mkdocs to build the documentation.
+> ```bash
+> mkdocs serve
+> ```
+> or
+> ```bash
+> mkdocs build
+> ```
+> to build the documentation.

@@ -1,0 +1,39 @@
+## 📦 Code Organization
+
+- For all files inside the `src/` directory, **use relative imports** instead of absolute or module-based imports.
+- All code must be added inside the `dbms` module structure unless explicitly excluded.
+- Add **logging** using the centralized logging system (`dbms.common.logging_config.get_logger`) to all new code. Include meaningful messages that help trace functionality. Class names are automatically detected.
+
+## 🧪 Testing
+
+- When writing tests:
+  - Use **sample data** already defined in the `tests/` folder. Do not redefine test data unless necessary.
+  - Follow the existing test **conventions** (naming, structure, fixtures, etc.).
+  - Use `run_tests.ps1` to run tests, which includes:
+    - `black` for formatting
+    - `mypy` for type checks
+    - `pytest` for functional tests
+
+## 📄 Documentation
+
+- After writing new code, add documentation for it in the `docs/` folder, following the existing **documentation format**.
+- Documentation should include:
+  - Purpose of the module/function
+  - Usage examples if relevant
+  - Any configuration or environment assumptions
+
+## 🔁 Feature Workflow
+
+When adding a new feature to `src/`:
+
+1. ✅ **Write the code** (with logging and proper relative imports)
+2. 🧪 **Write the tests** (reusing test data, following conventions)
+3. 📘 **Write the documentation** (in the existing format in `docs/`)
+
+## 🚀 CI/CD
+
+- Ensure your code passes all CI checks on GitHub Actions:
+  - Linting (`black`)
+  - Static typing (`mypy`)
+  - Tests (`pytest`)
+- Write code in a way that avoids CI breakage by maintaining typing and format discipline from the start.

@@ -15,3 +15,6 @@ from .errors import (
     SchemaError,
     DataTypeError,
 )
+
+# Import logging configuration to ensure it's set up
+from . import logging_config

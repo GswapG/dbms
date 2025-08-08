@@ -12,7 +12,8 @@ authors = [
     {name = "GswapG", email = "swappyontube@gmail.com"},
 ]
 dependencies = [
-    "PyYAML"
+    "PyYAML",
+    "ply"
 ]
 
 [project.optional-dependencies]
@@ -57,7 +58,7 @@ strict_optional = true
 
 # Paths to check
 files = ["src"]
-exclude = ["tests"]
+exclude = ["tests", "parsetab.py", "src/parser/parsetab.py"]
 
 # Configure import discovery
 ignore_missing_imports = true
@@ -71,3 +72,6 @@ strict = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 ignore_errors = true
+
+[tool.poetry.dependencies]
+graphviz = "*"

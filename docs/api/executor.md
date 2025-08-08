@@ -1,6 +1,6 @@
 # Executor API Reference
 
-See [Configuration](../configuration.md) for details on global settings (batch size, etc.).
+See [Configuration](../explanation/configuration.md) for details on global settings (batch size, etc.).
 
 ## Main Class
 

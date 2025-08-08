@@ -14,6 +14,9 @@ if (Test-Path ".venv\Scripts\Activate.ps1") {
     .\.venv\Scripts\Activate.ps1
 }
 
+# Ensure graphviz is installed
+pip install graphviz
+
 # Run type checking on source code
 Write-Header "Running type checking"
 mypy src
