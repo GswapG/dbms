@@ -856,11 +856,33 @@ def p_empty(p: Any) -> None:
 def p_error(p: Any) -> None:
     """Error rule for syntax errors."""
     if p:
-        error_msg = f"Syntax error at '{p.value}' at line {p.lineno}, column {p.lexpos}"
+        # Try to get the full input string from the parser/lexer context
+        # PLY does not provide the full input directly, so we try to get it from p.lexer.lexdata
+        sql_line = None
+        caret_line = None
+        if hasattr(p, "lexer") and hasattr(p.lexer, "lexdata"):
+            lexdata = p.lexer.lexdata
+            # Find the line containing the error
+            lines = lexdata.splitlines()
+            line_no = p.lineno - 1 if p.lineno > 0 else 0
+            if 0 <= line_no < len(lines):
+                sql_line = lines[line_no]
+                # Compute caret position (relative to line start)
+                # Find the start index of this line in lexdata
+                line_start = (
+                    lexdata.rfind("\n", 0, p.lexpos) + 1
+                    if "\n" in lexdata[: p.lexpos]
+                    else 0
+                )
+                caret_pos = p.lexpos - line_start
+                caret_line = " " * caret_pos + "^"
+        error_msg = f"Syntax error at '{p.value}' (type: {getattr(p, 'type', '?')}) at line {p.lineno}, column {p.lexpos}"
+        if sql_line is not None and caret_line is not None:
+            error_msg += f"\n    {sql_line}\n    {caret_line}"
         logger.error(f"{error_msg}")
         raise ParserError(error_msg)
     else:
-        error_msg = "Unexpected end of input"
+        error_msg = "Syntax error: Unexpected end of input"
         logger.error(f"{error_msg}")
         raise ParserError(error_msg)
 
