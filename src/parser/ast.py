@@ -130,9 +130,9 @@ class SelectStatement(ASTNode):
     where_clause: Optional[ASTNode] = None  # Expression
     group_by: Optional[List[ColumnReference]] = None
     having: Optional[ASTNode] = None  # Expression
-    order_by: Optional[
-        List[tuple[ASTNode, str]]
-    ] = None  # List of (ColumnReference, direction)
+    order_by: Optional[List[tuple[ASTNode, str]]] = (
+        None  # List of (ColumnReference, direction)
+    )
     limit: Optional[tuple[int, Optional[int]]] = None  # (limit, offset) tuple
     distinct: bool = False
 
