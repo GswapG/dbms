@@ -136,46 +136,51 @@ constraint : PRIMARY KEY
           | NULL
 ```
 
-### DROP Statement Grammar
+```
 
-```
-drop_statement : DROP TABLE IDENTIFIER
-              | DROP DATABASE IDENTIFIER
-```
+
 
 ### Expression Grammar
 
 ```
 expression : or_expression
 
-or_expression : and_expression
+                  | LEFT_PAREN expression RIGHT_PAREN
              | or_expression OR and_expression
 
-and_expression : equality_expression
+                  | NOT primary_expression
               | and_expression AND equality_expression
 
-equality_expression : comparison_expression
+                  | primary_expression PLUS primary_expression
                    | equality_expression EQUALS comparison_expression
                    | equality_expression NOT_EQUALS comparison_expression
                    | equality_expression IS NULL
                    | equality_expression IS NOT NULL
 
-comparison_expression : primary_expression
-                     | comparison_expression LESS_THAN primary_expression
-                     | comparison_expression LESS_EQUAL primary_expression
-                     | comparison_expression GREATER_THAN primary_expression
-                     | comparison_expression GREATER_EQUAL primary_expression
+comparison_expression : arithmetic_expression
+                     | comparison_expression LESS_THAN arithmetic_expression
+                     | comparison_expression LESS_EQUAL arithmetic_expression
+                     | comparison_expression GREATER_THAN arithmetic_expression
+                     | comparison_expression GREATER_EQUAL arithmetic_expression
                      | comparison_expression LIKE STRING_LITERAL
                      | comparison_expression IN LEFT_PAREN value_list RIGHT_PAREN
 
-primary_expression : column_reference
-                  | STRING_LITERAL
-                  | NUMBER_LITERAL
-                  | BOOLEAN_LITERAL
-                  | NULL
-                  | LEFT_PAREN expression RIGHT_PAREN
-                  | NOT primary_expression
-                  | primary_expression PLUS primary_expression
+arithmetic_expression : arithmetic_expression PLUS arithmetic_expression
+                     | arithmetic_expression MINUS arithmetic_expression
+                     | arithmetic_expression ASTERISK arithmetic_expression
+                     | arithmetic_expression DIVIDE arithmetic_expression
+                     | LEFT_PAREN arithmetic_expression RIGHT_PAREN
+                     | column_reference
+                     | function_call
+                     | NUMBER_LITERAL
+                     | STRING_LITERAL
+                     | BOOLEAN_LITERAL
+                     | NULL
+
+primary_expression : arithmetic_expression
+```
+
+**Note:** Arithmetic expressions are supported in all logical expressions, WHERE, HAVING, and as SELECT columns. See [Project Requirements](../requirements.md) for dependencies needed for arithmetic and function support.
                   | primary_expression MINUS primary_expression
                   | primary_expression ASTERISK primary_expression
                   | primary_expression DIVIDE primary_expression

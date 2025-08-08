@@ -1,4 +1,7 @@
+
 # Quick Start Guide
+
+> **Before you start:** See the [Project Requirements](../requirements.md) for all required dependencies and setup instructions.
 
 This tutorial will get you up and running with the DBMS in minutes. You'll learn how to install the system, run your first SQL query, and understand the basic workflow.
 

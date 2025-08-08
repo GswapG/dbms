@@ -148,6 +148,20 @@ For detailed SQL syntax examples, see [SQL Parser Deep Dive](../explanation/pars
 - All syntax errors raise `ParserError` with a descriptive message.
 - Errors include line number and column position information.
 
+**Examples:**
+
+```
+SELECT * FROM users WHERE age >
+                                 ^
+Syntax error: Unexpected end of input at line 1, column 29
+```
+
+```
+SELECT * FROM users @
+                 ^
+Syntax error: Illegal character '@' at line 1, column 18
+```
+
 ---
 
 ## Example Usage

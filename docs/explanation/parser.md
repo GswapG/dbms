@@ -56,7 +56,77 @@ CREATE TABLE users (
 );
 ```
 
+---
+
+
 ## Architecture
+
+### Two-Stage Processing
+
+1. **Lexical Analysis (Lexer)**
+   - Converts SQL text into tokens
+   - Handles keywords, identifiers, literals, operators
+   - Processes comments and whitespace
+   - Provides detailed error reporting for lexical issues
+
+2. **Syntax Analysis (Parser)**
+   - Converts tokens into Abstract Syntax Tree
+   - Validates SQL grammar rules
+   - Generates structured AST nodes
+   - Handles operator precedence and associativity
+   - Distinguishes between arithmetic and logical expressions for clarity and error recovery
+   - Handles table aliases, column lists, and function calls as described in the parser implementation
+
+---
+
+## Usage Examples
+
+
+When parse tree generation is enabled, the parser produces a visual representation of the SQL query structure. For example, parsing:
+
+```sql
+SELECT age, count(*) FROM users GROUP BY age HAVING COUNT(*) > 1;
+```
+
+produces the following parse tree image:
+
+![Parse tree for SELECT ... GROUP BY ... HAVING ...](../images/parse_tree_group_by_having.png)
+
+This tree shows the hierarchical structure of the query, with nodes for SELECT, columns, FROM, GROUP BY, HAVING, and the binary expression `COUNT(*) > 1`.
+
+See [Parse Tree Visualization](../how-to/parse-trees.md) for more details.
+
+
+## Error Handling
+
+The parser provides detailed error messages with caret/cursor pointing to the error location. Here are some examples:
+
+**Lexical Error (Illegal Character):**
+```
+SELECT * FROM users @
+                 ^
+Syntax error: Illegal character '@' at line 1, column 18
+```
+
+**Unterminated String:**
+```
+SELECT * FROM users WHERE name = 'Alice
+                                 ^
+Syntax error: Unterminated string at line 1, column 35
+```
+
+**Syntax Error:**
+```
+SELECT * FROM users WHERE age >
+                                 ^
+Syntax error: Unexpected end of input at line 1, column 29
+```
+
+All errors include line and column information, and the caret points to the exact error location. See the [Grammar Reference](grammar.md#error-recovery) for more details.
+
+---
+
+## Parse Tree Example
 
 ### Two-Stage Processing
 
@@ -174,6 +244,7 @@ class ColumnDefinition:
 ```
 
 ## Class Diagrams
+
 
 ### AST Statement Hierarchy
 ```mermaid
@@ -386,6 +457,11 @@ ast = parser.parse(sql)  # Automatically generates parse tree image
 - Maintain backward compatibility
 
 ## Debugging and Troubleshooting
+
+
+### Requirements
+
+Before using the parser, ensure all dependencies are installed. See the [Project Requirements](../requirements.md) for a complete list of Python packages and system tools needed.
 
 ### Common Issues
 

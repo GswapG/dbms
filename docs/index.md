@@ -1,6 +1,11 @@
+
 # DBMS Documentation Index
 
 Welcome to the DBMS documentation! This project implements a SQL-compliant database from scratch, providing hands-on learning of database management system internals.
+
+## Requirements
+
+Before you begin, please review the [Project Requirements](requirements.md) for all necessary Python packages and system dependencies.
 
 ## Documentation Structure
 

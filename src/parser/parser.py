@@ -992,7 +992,11 @@ class PLYParser:
                 label = str(node)
                 dot.node(curr_id, label, shape="note")
             if parent_id is not None:
-                dot.edge(parent_id, curr_id)
+                # Label the edge with the attribute name if present
+                if attr_name is not None:
+                    dot.edge(parent_id, curr_id, label=attr_name)
+                else:
+                    dot.edge(parent_id, curr_id)
             node_id[0] += 1
             if hasattr(node, "__dict__"):
                 for k, v in node.__dict__.items():
